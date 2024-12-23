@@ -1,138 +1,107 @@
-// Base Person class
 class Person {
-    constructor(name, id) {
+  constructor(name, id) {
       this.name = name;
       this.id = id;
-    }
   }
-  
-  // Member class extending Person
-  class Member extends Person {
-    #fines = 0; // Private field to track fines
-  
-    constructor(name, id, membershipType) {
+}
+
+class Member extends Person {
+  constructor(name, id, membershipType) {
       super(name, id);
       this.membershipType = membershipType;
-    }
-  
-    // Add fine to the member
-    addFine(amount) {
-      this.#fines += amount;
-      console.log(`${this.name} now has fines of $${this.#fines.toFixed(2)}`);
-    }
-  
-    // Get the total fines (read-only access)
-    getFines() {
-      return this.#fines;
-    }
-  
-    // Clear all fines
-    clearFines() {
-      this.#fines = 0;
-      console.log(`${this.name}'s fines have been cleared.`);
-    }
   }
-  
-  // Book class
-  class Book {
-    constructor(title, author, isbn) {
+}
+
+class Book {
+  constructor(title, author, isbn) {
       this.title = title;
       this.author = author;
       this.isbn = isbn;
-      this.isAvailable = true;
-    }
+      this.isAvailable = true; 
   }
-  
-  // Loan class
-  class Loan {
-    constructor(book, member, dueDate) {
+}
+
+class Loan {
+  #fine; 
+
+  constructor(book, member, dueDate) {
       this.book = book;
       this.member = member;
       this.dueDate = dueDate;
-    }
-  
-    // Check if the loan is overdue
-    isOverdue(currentDate) {
-      return currentDate > this.dueDate;
-    }
+      this.#fine = 0; 
   }
-  
-  // Library class
-  class Library {
-    constructor() {
+
+  // Method to set fine
+  setFine(amount) {
+      this.#fine = amount;
+  }
+
+  // Method to get fine
+  getFine() {
+      return this.#fine;
+  }
+}
+
+class Library {
+  constructor() {
       this.books = [];
       this.members = [];
       this.loans = [];
-    }
-  
-    // Add a book
-    addBook(book) {
+  }
+
+  addBook(book) {
       this.books.push(book);
-      console.log(`Added book: "${book.title}" by ${book.author}`);
-    }
-  
-    // Register a member
-    registerMember(member) {
+      console.log(`Book "${book.title}" added to the library.`);
+  }
+
+  registerMember(member) {
       this.members.push(member);
-      console.log(`Registered member: "${member.name}" with ID: ${member.id}`);
-    }
-  
-    // Issue a book
-    issueBook(isbn, memberId) {
+      console.log(`Member "${member.name}" registered.`);
+  }
+
+  issueBook(isbn, memberId) {
       const book = this.books.find(b => b.isbn === isbn && b.isAvailable);
       const member = this.members.find(m => m.id === memberId);
-  
+
       if (!book) {
-        console.log(`Book with ISBN ${isbn} is not available.`);
-        return;
+          console.log(`Book with ISBN ${isbn} is not available.`);
+          return;
       }
+
       if (!member) {
-        console.log(`Member with ID ${memberId} not found.`);
-        return;
+          console.log(`Member with ID ${memberId} is not registered.`);
+          return;
       }
-  
-      const dueDate = new Date();
-      dueDate.setDate(dueDate.getDate() + 14); // 14-day loan period
-  
+
+      // Mark the book as not available
       book.isAvailable = false;
-      this.loans.push(new Loan(book, member, dueDate));
-      console.log(`Issued "${book.title}" to "${member.name}". Due date: ${dueDate.toDateString()}`);
-    }
-  
-    // Return a book
-    returnBook(isbn, currentDate = new Date()) {
-      const loanIndex = this.loans.findIndex(loan => loan.book.isbn === isbn);
-  
-      if (loanIndex === -1) {
-        console.log(`No loan found for book with ISBN: ${isbn}`);
-        return;
-      }
-  
-      const loan = this.loans[loanIndex];
-      const { book, member } = loan;
-  
-      if (loan.isOverdue(currentDate)) {
-        const fineAmount = 5; // Flat fine for overdue books
-        member.addFine(fineAmount);
-        console.log(`"${book.title}" was returned late. Fine of $${fineAmount.toFixed(2)} added to ${member.name}.`);
-      } else {
-        console.log(`"${book.title}" was returned on time.`);
-      }
-  
-      book.isAvailable = true;
-      this.loans.splice(loanIndex, 1);
-    }
+
+      // Set a due date (e.g., 14 days from now)
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 14);
+
+      // Create a new loan
+      const loan = new Loan(book, member, dueDate);
+      this.loans.push(loan);
+      console.log(`Book "${book.title}" issued to member "${member.name}". Due date: ${dueDate.toDateString()}`);
   }
-  
-  // Example usage
-  const library = new Library();
-  
-  library.addBook(new Book("The Great Gatsby", "F. Scott Fitzgerald", "12345"));
-  library.addBook(new Book("1984", "George Orwell", "67890"));
-  
-  library.registerMember(new Member("Alice", 1, "Gold"));
-  library.registerMember(new Member("Bob", 2, "Silver"));
-  
-  library.issueBook("12345", 1); // Alice borrows "The Great Gatsby"
-  library.returnBook("12345", new Date("2024-12-25")); // Alice returns "The Great Gatsby" late
-  library.issueBook("67890", 2); // Bob borrows "1984"
+}
+
+// Example usage
+const library = new Library();
+
+// Adding books
+const book1 = new Book("The Great Gatsby", "F. Scott Fitzgerald", "123456789");
+const book2 = new Book("1984", "George Orwell", "987654321");
+library.addBook(book1);
+library.addBook(book2);
+
+// Registering members
+const member1 = new Member("Saurabh", "1", "Regular");
+const member2 = new Member("Arpit", "2", "Premium");
+library.registerMember(member1);
+library.registerMember(member2);
+
+// Issuing a book
+library.issueBook("123456789", "1"); // Successful issue
+library.issueBook("123456789", "2"); // Book not available
