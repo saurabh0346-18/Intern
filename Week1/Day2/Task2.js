@@ -91,8 +91,8 @@ class Library {
 const library = new Library();
 
 // Adding books
-const book1 = new Book("The Great Gatsby", "F. Scott Fitzgerald", "123456789");
-const book2 = new Book("1984", "George Orwell", "987654321");
+const book1 = new Book("Hnads On ML", "Aurelien Geron", "123456789");
+const book2 = new Book("The Hundred-Page ML", "Andriy Burkov", "987654321");
 library.addBook(book1);
 library.addBook(book2);
 
